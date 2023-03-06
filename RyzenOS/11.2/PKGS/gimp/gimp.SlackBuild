@@ -57,7 +57,7 @@ find -L $TMP/$PKGNAM-$VERSION \
 
 # Build the package
 export CFLAGS="-O3 -march=znver2" CXXFLAGS="-O3 -march=znver2"
-./configure --prefix=/usr
+./configure --prefix=/usr --sysconfdir=/etc
 make $NUMJOBS
 
 # Test the results
