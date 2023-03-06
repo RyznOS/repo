@@ -1,0 +1,23 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description. Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in. You must
+# make exactly 11 lines for the formatting to be correct. It's also
+# customary to leave one space after the ':'.
+
+       |-----handy-ruler------------------------------------------------------|
+vlc: VLC is a media player, streamer, and encoder. 
+vlc: It can play from many inputs, such as files, 
+vlc: network streams, capture devices, desktops, or DVD, 
+vlc: SVCD, VCD, and audio CD. 
+vlc: It can use most audio and video codecs
+vlc: (MPEG 1/2/4, H264, VC-1, DivX, WMV, Vorbis, 
+vlc: AC3, AAC, etc.), and it can also convert to different 
+vlc: formats 
+vlc: and/or send streams through the network. 
+vlc:
+vlc: This package is known to build and work properly 
+vlc: using the RyzenOS 11.2 platform. 
+vlc:
+vlc:
+
