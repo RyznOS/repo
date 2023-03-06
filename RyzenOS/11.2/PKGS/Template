@@ -1,0 +1,5 @@
+pkgget $PKGNAM 
+
+each script must correspond to $PKGNAM, URL
+
+
