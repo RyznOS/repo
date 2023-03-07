@@ -1,0 +1,181 @@
+#!/bin/bash
+
+# Linux From Scratch build script for @PKGNAM@
+
+# Copyright @YEAR@ @AUTHOR@
+#
+# Permission is hereby granted, free of charge, to any person obtaining a
+# copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included
+# in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+# OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+# THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+# DEALINGS IN THE SOFTWARE.
+
+PKGNAM=firefox
+VERSION=109.0b9
+PKGSRC="https://ftp.mozilla.org/pub/firefox/releases/109.0b9/source/firefox-109.0b9.source.tar.xz"
+EXTENTION=xz
+BUILD=11.2-
+TAG=${TAG:-RyzenOS}
+ARCH=znver2
+
+NUMJOBS=${NUMJOBS:-"-j$( expr $( nproc ) + 1 )"}
+
+CWD=$(pwd)
+TMP=${TMP:-/tmp}
+PKG=$TMP/package-$PKGNAM
+
+# Download the SRC Tarball
+echo Downloading $PKGNAM $VERSION
+wget $PKGSRC 
+
+set -e
+
+rm -rf $PKG
+mkdir -p $TMP $PKG
+cd $TMP
+rm -rf $PKGNAM-$VERSION
+tar xvf $CWD/$PKGNAM-$VERSION.tar.$EXTENTION
+
+cd $PKGNAM-$VERSION
+chown -R root:root .
+find -L $TMP/$PKGNAM-$VERSION \
+	\( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 \
+	-o -perm 555 -o -perm 511 \) -exec chmod 755 {} \; -o \
+	\( -perm 666 -o -perm 664 -o -perm 640 -o -perm 600 \
+	-o -perm 444 -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
+
+# Build the package
+echo Building $PKGNAM -$VERSION using RyzenOS PKGBUILD SYSTEM ver 11.2
+
+# Moz Config
+cat > mozconfig << "EOF"
+# If you have a multicore machine, all cores will be used by default.
+
+# If you have installed (or will install) wireless-tools, and you wish
+# to use geolocation web services, comment out this line
+ac_add_options --disable-necko-wifi
+
+# API Keys for geolocation APIs - necko-wifi (above) is required for MLS
+# Uncomment the following line if you wish to use Mozilla Location Service
+#ac_add_options --with-mozilla-api-keyfile=$PWD/mozilla-key
+
+# Uncomment the following line if you wish to use Google's geolocation API
+# (needed for use with saved maps with Google Maps)
+#ac_add_options --with-google-location-service-api-keyfile=$PWD/google-key
+
+# startup-notification is required since firefox-78
+
+# Uncomment the following option if you have not installed PulseAudio and
+# want to use alsa instead
+#ac_add_options --enable-audio-backends=alsa
+
+# Comment out following options if you have not installed
+# recommended dependencies:
+ac_add_options --with-system-icu
+ac_add_options --with-system-libevent
+ac_add_options --with-system-libvpx
+ac_add_options --with-system-nspr
+ac_add_options --with-system-nss
+ac_add_options --with-system-webp
+
+# Unlike with thunderbird, although using the gold linker can
+# save four megabytes in the installed file it does not make
+# the build faster.
+
+# libdavid (av1 decoder) requires nasm. Uncomment this if nasm
+# has not been installed. Do not uncomment this if you have
+# ffmpeg-5 installed.
+#ac_add_options --disable-av1
+
+# You cannot distribute the binary if you do this
+ac_add_options --enable-official-branding
+
+# Stripping is now enabled by default.
+# Uncomment these lines if you need to run a debugger:
+#ac_add_options --disable-strip
+#ac_add_options --disable-install-strip
+
+# Disabling debug symbols makes the build much smaller and a little
+# faster. Comment this if you need to run a debugger. Note: This is
+# required for compilation on i686.
+ac_add_options --disable-debug-symbols
+
+# The elf-hack is reported to cause failed installs (after successful builds)
+# on some machines. It is supposed to improve startup time and it shrinks
+# libxul.so by a few MB - comment this if you know your machine is not affected.
+ac_add_options --disable-elf-hack
+
+# The BLFS editors recommend not changing anything below this line:
+ac_add_options --prefix=/usr
+ac_add_options --enable-application=browser
+ac_add_options --disable-crashreporter
+ac_add_options --disable-updater
+# enabling the tests will use a lot more space and significantly
+# increase the build time, for no obvious benefit.
+ac_add_options --disable-tests
+
+# The default level of optimization again produces a working build with gcc.
+ac_add_options --enable-optimize
+
+ac_add_options --enable-system-ffi
+ac_add_options --enable-system-pixman
+
+ac_add_options --with-system-jpeg
+ac_add_options --with-system-png
+ac_add_options --with-system-zlib
+
+# Using sandboxed wasm libraries has been moved to all builds instead
+# of only mozilla automation builds. It requires extra llvm packages
+# and was reported to seriously slow the build. Disable it.
+ac_add_options --without-wasm-sandboxed-libraries
+
+# The following option unsets Telemetry Reporting. With the Addons Fiasco,
+# Mozilla was found to be collecting user's data, including saved passwords and
+# web form data, without users consent. Mozilla was also found shipping updates
+# to systems without the user's knowledge or permission.
+# As a result of this, use the following command to permanently disable
+# telemetry reporting in Firefox.
+unset MOZ_TELEMETRY_REPORTING
+
+mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/firefox-build-dir
+EOF
+
+sed -i '/ROOT_CLIP_CHAIN/d' gfx/webrender_bindings/webrender_ffi.h
+
+echo "AIzaSyDxKL42zsPjbke5O8_rPVpVrLrJ8aeE9rQ" > google-key
+echo "613364a7-9418-4c86-bcee-57e32fd70c23" > mozilla-key
+
+export CFLAGS="-O3 -march=znver2" CXXFLAGS="-O3 -march=znver2"
+
+# Build Firefox for RyzenOS 11.2
+export MACH_BUILD_PYTHON_NATIVE_PACKAGE_SOURCE=none 
+export MOZBUILD_STATE_PATH=${PWD}/mozbuild          
+./mach configure --prefix=/usr                               
+./mach build
+
+# Install the package
+MACH_BUILD_PYTHON_NATIVE_PACKAGE_SOURCE=none  ./mach install DESTDIR=$PKG 
+
+# Strip binaries
+find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
+
+# Create the package
+mkdir -p $PKG/install
+install -m644 $CWD/slack-desc $PKG/install/slack-desc
+
+unset MACH_BUILD_PYTHON_NATIVE_PACKAGE_SOURCE MOZBUILD_STATE_PATH
+
+cd $PKG
+/sbin/makepkg -l y -c n $TMP/$PKGNAM-$VERSION-$ARCH-$BUILD$TAG.${PKGTYPE:-txz}
