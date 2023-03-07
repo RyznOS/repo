@@ -55,6 +55,7 @@ find -L $TMP/$PKGNAM \
 # Build the package
 echo Building Paackage using RyzenOS PKGBUILD SYSTEM ver 11.2
 export CFLAGS="-O3 -march=znver2" CXXFLAGS="-O3 -march=znver2"
+./autogen.sh
 ./configure --prefix=/usr
 make $NUMJOBS
 
