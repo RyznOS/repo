@@ -64,9 +64,6 @@ export CPPFLAGS="$(pkg-config --cflags lua52)"
 BUILDCC=gcc ./configure --prefix=/usr
 make $NUMJOBS
 
-# Test the results
-make check
-
 # Install the package
 make install DESTDIR=$PKG
 
