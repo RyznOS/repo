@@ -23,19 +23,12 @@
 # DEALINGS IN THE SOFTWARE.
 
 PKGNAM=shaderc
-VERSION=43.1
 PKGSRC="https://github.com/google/shaderc.git"
 BUILD=11.2-
 TAG=${TAG:-RyzenOS}
 ARCH=znver2
 
 NUMJOBS=${NUMJOBS:-"-j$( expr $( nproc ) + 1 )"}
-
-echo Downloading $PKGNAM $VERSION
-git clone $PKGSRC 
-
-cd $PKGNAM
-./utils/git-sync-deps
 
 CWD=$(pwd)
 TMP=${TMP:-/tmp}
@@ -46,15 +39,20 @@ set -e
 rm -rf $PKG
 mkdir -p $TMP $PKG
 cd $TMP
-rm -rf $PKGNAM-$VERSION
+rm -rf $PKGNAM
 
-cd $PKGNAM-$VERSION
+echo Downloading $PKGNAM
+git clone $PKGSRC 
+
+cd $PKGNAM
 chown -R root:root .
-find -L $TMP/$PKGNAM-$VERSION \
+find -L $TMP/$PKGNAM \
 	\( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 \
 	-o -perm 555 -o -perm 511 \) -exec chmod 755 {} \; -o \
 	\( -perm 666 -o -perm 664 -o -perm 640 -o -perm 600 \
 	-o -perm 444 -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
+
+./utils/git-sync-deps
 
 # Build the package
 echo Building Package using RyzenOS PKGBUILD SYSTEM ver 11.2
@@ -77,4 +75,4 @@ mkdir -p $PKG/install
 install -m644 $CWD/slack-desc $PKG/install/slack-desc
 
 cd $PKG
-/sbin/makepkg -l y -c n $TMP/$PKGNAM-$VERSION-$ARCH-$BUILD$TAG.${PKGTYPE:-txz}
+/sbin/makepkg -l y -c n $TMP/$PKGNAM-$ARCH-$BUILD$TAG.${PKGTYPE:-txz}
