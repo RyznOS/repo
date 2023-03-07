@@ -23,7 +23,8 @@
 # DEALINGS IN THE SOFTWARE.
 
 PKGNAM=firefox
-VERSION=109.0b9
+VERSION=109.0
+SUBVER=b9
 PKGSRC="https://ftp.mozilla.org/pub/firefox/releases/109.0b9/source/firefox-109.0b9.source.tar.xz"
 EXTENTION=xz
 BUILD=11.2-
