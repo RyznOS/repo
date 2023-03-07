@@ -33,7 +33,7 @@ NUMJOBS=${NUMJOBS:-"-j$( expr $( nproc ) + 1 )"}
 CWD=$(pwd)
 TMP=${TMP:-/tmp}
 PKG=$TMP/package-$PKGNAM
-PKGDIR=$TMP/package-$PKGNAM
+PKGDIR=$TMP/xfce-theme-manager
 set -e
 
 rm -rf $PKG
@@ -44,7 +44,7 @@ rm -rf $PKGNAM
 echo Downloading Xfce Theme Manager
 git clone $PKGSRC $PKGDIR 
 
-cd $PKGNAM
+cd $PKGDIR
 chown -R root:root .
 find -L $TMP/$PKGNAM \
 	\( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 \
