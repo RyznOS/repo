@@ -73,19 +73,6 @@ DESTDIR=$PKG ninja install
 # Strip binaries
 find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
-# Compress the manual pages
-find $PKG/usr/share/man -type f -exec gzip -9 {} \;
-for i in $( find $PKG/usr/share/man -type l ); do
-	ln -s $( readlink $i ).gz $i.gz
-	rm $i
-done
-
-# Include documentation files
-install -dm755 $PKG/usr/share/doc/$PKGNAM-$VERSION
-install -m644 ChangeLog COPYING README.md \
-	$PKG/usr/share/doc/$PKGNAM-$VERSION/
-install -m644 $CWD/$PKGNAM.SlackBuild $PKG/usr/share/doc/$PKGNAM-$VERSION/
-
 # Create the package
 mkdir -p $PKG/install
 install -m644 $CWD/slack-desc $PKG/install/slack-desc
