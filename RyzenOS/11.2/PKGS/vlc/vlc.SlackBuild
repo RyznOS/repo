@@ -58,7 +58,12 @@ find -L $TMP/$PKGNAM-$VERSION \
 # Build the package With AOCC for RyzenOS
 export CC="/opt/aocc-compiler-4.0.0/bin/clang" CXX="/opt/aocc-compiler-4.0.0/bin/clang++"
 export CFLAGS="-O3 -march=znver2" CXXFLAGS="-O3 -march=znver2"
-./configure --prefix=/usr
+
+export LUAC=/usr/bin/luac5.2                          
+export LUA_LIBS="$(pkg-config --libs lua52)"          
+export CPPFLAGS="$(pkg-config --cflags lua52)"        
+
+BUILDCC=/opt/aocc-compiler-4.0.0/bin/clang ./configure --prefix=/usr
 make $NUMJOBS
 
 # Test the results
