@@ -46,7 +46,7 @@ rm -rf $PKG
 mkdir -p $TMP $PKG
 cd $TMP
 rm -rf $PKGNAM-$VERSION
-tar xvf $CWD/$PKGNAM-$VERSION.tar.$EXTENTION
+tar xvf $CWD/$PKGNAM-$VERSION-source.tar.$EXTENTION
 
 cd $PKGNAM-$VERSION
 chown -R root:root .
@@ -179,3 +179,7 @@ unset MACH_BUILD_PYTHON_NATIVE_PACKAGE_SOURCE MOZBUILD_STATE_PATH
 
 cd $PKG
 /sbin/makepkg -l y -c n $TMP/$PKGNAM-$VERSION-$ARCH-$BUILD$TAG.${PKGTYPE:-txz}
+
+# cleanup 
+rm -rf /tmp/package-$PKGNAM
+
